@@ -7,7 +7,8 @@ const Home = () => {
   const [temperature, setTemperature] = useState('')
   const [weather, setWeather] = useState('')
   const [search, setSearch] = useState('')
-  const [city, setCity] = useState('')
+  const [city, setCity] = useState('') 
+  const [futureWeather, setFutureWeather] = useState('')
 
   const getWeather = () => {
   axios
@@ -16,46 +17,45 @@ const Home = () => {
       delete result.data.main.pressure
       delete result.data.main.humidity
       delete result.data.main.feels_like
-      console.log(result)
       setCity(result.data.name)
       setWeather(result.data.weather[0])
       refactApiData(result.data.main)
-    });
-  }
 
-  const refactApiData = (data) => {
+    });
+    getNextTemperatures()
+  }
+  const getNextTemperatures = () => {
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/forecast?q=${search}&appid=${import.meta.env.VITE_API_KEY}`)
+      .then((res) => {
+        const result = (res.data.list).map((data, i) => {
+          console.log(res.data.list[i].dt_txt)
+          const dayAndMonth = ((res.data.list[i].dt_txt).slice(5, 10))
+          const dayFormatted = dayAndMonth.replace('-', '/')
+          return {
+            temp: (data.main.temp - 273.15).toFixed(1),
+            dayFormatted
+          }
+        })
+        setFutureWeather(result); 
+      })
+  }
+  const refactApiData = (data) => {//FIXME
     const dataGraph = [
       {
-        temp: parseFloat(data.temp_min - 2.5).toFixed(1),
-      },
-      {
         temp: data.temp_min,
-      },
-      {
-        temp: parseFloat(data.temp_min + 2.5).toFixed(1),
-      },      
-      {
-        temp: parseFloat(data.temp - 2.5).toFixed(1),
       },
       {
         temp: data.temp,
       },
       {
-        temp: parseFloat(data.temp + 2.5).toFixed(1),
-      }, 
-      {
-        temp: parseFloat(data.temp_max - 2.5).toFixed(1),
-      },
-      {
         temp: data.temp_max,
       },
-      {
-        temp: parseFloat(data.temp_max + 2.5).toFixed(1),
-      }, 
     ]
     setTemperature(dataGraph)
   }
-  console.log(temperature)
+
+
   return(
     <Main>
       <h1><strong>Levo um casaquinho?</strong></h1>
@@ -73,24 +73,22 @@ const Home = () => {
         <LeftBox>
           <h2>Agora: {city}</h2>
           <p>Mínima: {temperature ? temperature[0].temp : ''}ºC</p>
-          <p>Máxima: {temperature ? temperature[8].temp : ''}ºC</p>
+          <p>Máxima: {temperature ? temperature[2].temp : ''}ºC</p>
         </LeftBox>
         <RightBox>
           <p>{weather.description}</p>
-          <h2>{temperature ? temperature[5].temp : ''}ºC</h2>
+          <h2>{temperature ? temperature[1].temp : ''}ºC</h2>
         </RightBox>        
       </Temperature>
       
-      <Graphic>
-        <LineChart width={500} height={300} data={temperature} margin={{top: 5, right: 5, left: 5, bottom: 5}}>
-          <XAxis dataKey="none"/>
-          <YAxis/>
-          <Tooltip />
-          <CartesianGrid stroke="#eee" strokeDasharray="3 3"/>
-          <Line type="monotone" dataKey="temp" stroke="#8884d8" activeDot={{ r: 8 }} />
-        </LineChart>
-      </Graphic>
-      
+      <LineChart width={500} height={300} data={futureWeather} margin={{top: 5, right: 5, left: 5, bottom: 5}}>
+        <XAxis dataKey="dayFormatted"/>
+        <YAxis/>
+        <Tooltip />
+        <CartesianGrid stroke="#eee" strokeDasharray="9 9"/>
+        <Line type="monotone" dataKey="temp" stroke="#8884d8" activeDot={{ r: 8 }} />
+      </LineChart>
+    
     </Main>
   )
 }
@@ -129,6 +127,7 @@ const Temperature = styled.div`
     font-size: .9em;
   }
 `
+
 const LeftBox = styled.div`
   h2{
     font-size: large;
@@ -144,8 +143,4 @@ const RightBox = styled.div`
     font-size: xx-large;
     margin-bottom: 10px;
   }
-`
-
-const Graphic = styled.div`
-  background-color: red;
 `
