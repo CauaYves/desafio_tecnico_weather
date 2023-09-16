@@ -1,11 +1,13 @@
 import axios from "axios"
 import { useState } from "react"
 import styled from "styled-components"
-import { LineChart, XAxis, YAxis, CartesianGrid, Line, Tooltip, Legend } from "recharts"
+import { LineChart, XAxis, YAxis, CartesianGrid, Line, Tooltip } from "recharts"
 
 const Home = () => {
-  const [weather, setWeather] = useState(null)
+  const [temperature, setTemperature] = useState('')
+  const [weather, setWeather] = useState('')
   const [search, setSearch] = useState('')
+  const [city, setCity] = useState('')
 
   const getWeather = () => {
   axios
@@ -14,34 +16,46 @@ const Home = () => {
       delete result.data.main.pressure
       delete result.data.main.humidity
       delete result.data.main.feels_like
+      console.log(result)
+      setCity(result.data.name)
+      setWeather(result.data.weather[0])
       refactApiData(result.data.main)
     });
   }
 
   const refactApiData = (data) => {
-    console.log(data)
     const dataGraph = [
       {
+        temp: parseFloat(data.temp_min - 2.5).toFixed(1),
+      },
+      {
         temp: data.temp_min,
-        name: 'temp min',
-        amt: (data.temp_max + data.temp_min) / 2,
+      },
+      {
+        temp: parseFloat(data.temp_min + 2.5).toFixed(1),
+      },      
+      {
+        temp: parseFloat(data.temp - 2.5).toFixed(1),
       },
       {
         temp: data.temp,
-        name: 'temp media',
-        amt: (data.temp_max + data.temp_min) / 2,
-
+      },
+      {
+        temp: parseFloat(data.temp + 2.5).toFixed(1),
+      }, 
+      {
+        temp: parseFloat(data.temp_max - 2.5).toFixed(1),
       },
       {
         temp: data.temp_max,
-        amt: (data.temp_max + data.temp_min) / 2,
-        name: 'temp max',
-      }
+      },
+      {
+        temp: parseFloat(data.temp_max + 2.5).toFixed(1),
+      }, 
     ]
-    setWeather(dataGraph)
+    setTemperature(dataGraph)
   }
-
-  console.log(weather)
+  console.log(temperature)
   return(
     <Main>
       <h1><strong>Levo um casaquinho?</strong></h1>
@@ -56,27 +70,27 @@ const Home = () => {
       </Search>
 
       <Temperature>
-        <div>
-          <h2>Agora: [CIDADE]</h2>
-          <p>Mínima: [GRAUS MINIMOS]</p>
-          <p>Máxima: [GRAUS MAXIMOS]</p>
-        </div>
-        <div>
-          <p>[CLIMA ATUAL]</p>
-          <h2>[TEMPERATURA ATUAL]</h2>
-        </div>        
+        <LeftBox>
+          <h2>Agora: {city}</h2>
+          <p>Mínima: {temperature ? temperature[0].temp : ''}ºC</p>
+          <p>Máxima: {temperature ? temperature[8].temp : ''}ºC</p>
+        </LeftBox>
+        <RightBox>
+          <p>{weather.description}</p>
+          <h2>{temperature ? temperature[5].temp : ''}ºC</h2>
+        </RightBox>        
       </Temperature>
       
       <Graphic>
-        <LineChart width={500} height={300} data={weather}>
-          <XAxis dataKey="name"/>
+        <LineChart width={500} height={300} data={temperature} margin={{top: 5, right: 5, left: 5, bottom: 5}}>
+          <XAxis dataKey="none"/>
           <YAxis/>
           <Tooltip />
-          <Legend />
           <CartesianGrid stroke="#eee" strokeDasharray="3 3"/>
           <Line type="monotone" dataKey="temp" stroke="#8884d8" activeDot={{ r: 8 }} />
         </LineChart>
       </Graphic>
+      
     </Main>
   )
 }
@@ -115,6 +129,23 @@ const Temperature = styled.div`
     font-size: .9em;
   }
 `
+const LeftBox = styled.div`
+  h2{
+    font-size: large;
+    margin-bottom: 10px;
+  }
+  p{
+    font-size: small;
+  }
+`
+
+const RightBox = styled.div`
+  h2{
+    font-size: xx-large;
+    margin-bottom: 10px;
+  }
+`
 
 const Graphic = styled.div`
+  background-color: red;
 `
