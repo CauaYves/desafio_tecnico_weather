@@ -72,6 +72,7 @@ const Home = () => {
     }
     return color
   }
+  console.log(futureWeather)
   return(
     <Main>
       <h1><strong>Levo um casaquinho?</strong></h1>
@@ -92,17 +93,17 @@ const Home = () => {
           <p>Máxima: {temperature.temp_max}ºC</p>
         </LeftBox>
         <RightBox>
-          <p>{weather.description}</p>
+          <div translate="yes">{weather.description}</div>
           <h2>{temperature.temp}ºC</h2>
         </RightBox>        
       </Temperature>
       
-      <LineChart width={500} height={300} data={futureWeather} margin={{top: 5, right: 5, left: 5, bottom: 5}}>
+      <LineChart width={500} height={300} data={futureWeather}>
         <XAxis dataKey="day"/>
-        <YAxis/>
+        <YAxis domain={[parseInt(temperature.temp_min - 10), parseInt(temperature.temp_max + 4)]}/>
         <Tooltip />
-        <CartesianGrid stroke="#eee" strokeDasharray="0 0"/>
-        <Line type="monotone" dataKey="temp" stroke="#8884d8" activeDot={{ r: 8 }} />
+        <CartesianGrid stroke="#eee" strokeDasharray="10 0"/>
+        <Line type="bump" dataKey="temp" stroke="#8884d8" activeDot={{ r: 8 }} />
       </LineChart>
     
     </Main>
