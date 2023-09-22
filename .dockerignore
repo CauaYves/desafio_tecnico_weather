@@ -1,0 +1,22 @@
+# Arquivos e diretórios a serem ignorados no Docker
+
+# Arquivos de dependências gerados pelo npm ou yarn
+node_modules/
+
+# Arquivos de build gerados pelo Vite
+dist/
+
+# Arquivos de cache gerados pelo Vite
+node_modules/.cache/
+
+# Arquivos de configuração do Vite
+vite.config.js
+vite.config.ts
+
+# Arquivos e diretórios específicos do projeto que você deseja excluir
+# Exemplo: Arquivo de log
+#logs/
+
+# Outros arquivos específicos do projeto a serem excluídos
+# exemplo: .env
+#.env
