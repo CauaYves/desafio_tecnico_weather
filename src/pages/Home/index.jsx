@@ -9,6 +9,7 @@ const Home = () => {
   const [search, setSearch] = useState('')
   const [city, setCity] = useState('') 
   const [futureWeather, setFutureWeather] = useState('')
+  const [error, setError] = useState(undefined)
 
   const getWeather = () => {
   axios
@@ -20,8 +21,15 @@ const Home = () => {
       setCity(result.data.name)
       setWeather(result.data.weather[0])
       setTemperature(result.data.main)
-
-    });
+    })
+    .catch((error) => {
+      console.log(error.response.statusText)
+      if(error.response.statusText === "Not Found") {
+        setError("Local não encontrado.")
+      } else {
+        setError("Campo inválido!")
+      }
+    })
     getNextTemperatures()
   }
   const getNextTemperatures = () => {
@@ -72,7 +80,6 @@ const Home = () => {
     }
     return color
   }
-  console.log(futureWeather)
   return(
     <Main>
       <h1><strong>Levo um casaquinho?</strong></h1>
@@ -85,7 +92,7 @@ const Home = () => {
         />
         <button onClick={getWeather}>Buscar</button>
       </Search>
-
+      <h4>{error}</h4>
       <Temperature color={changeColorByWeather}>
         <LeftBox>
           <h2>Agora: {city}</h2>
@@ -140,9 +147,8 @@ const Temperature = styled.div`
   justify-content: space-between;
 
   p,h2{
-    color: black;
+    color: white;
     font-size: .9em;
-    text-shadow: 1px 0px 10px white;
   }
 `
 
